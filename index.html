@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -67,6 +67,10 @@
       background: var(--bg-panel);
       backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
       flex-shrink: 0; z-index: 10;
+      transition: opacity 0.18s, transform 0.18s;
+    }
+    #header.header-hidden {
+      display: none;
     }
     .h-side { display: flex; align-items: center; gap: 4px; min-width: 64px; }
     .h-side.right { justify-content: flex-end; }
@@ -100,6 +104,7 @@
       font-size: 17px; transition: background var(--tr); flex-shrink: 0; line-height: 1;
     }
     .icon-btn:hover { background: var(--accent-d); }
+    .icon-btn svg { display: block; }
 
     /* ===== CONTENT AREA ===== */
     #content { flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; }
@@ -127,7 +132,7 @@
       position: relative; min-height: 96px; user-select: none;
     }
     .folder-card:hover { background: var(--bg-card-h); transform: translateY(-2px); box-shadow: var(--shadow); }
-    .folder-icon { font-size: 30px; }
+    .folder-icon { color: var(--accent); opacity: 0.85; }
     .folder-name {
       font-size: 13px; font-weight: 600; color: var(--text-pri);
       word-break: break-word; display: -webkit-box;
@@ -157,16 +162,29 @@
     }
     .note-card-date { font-size: 10px; opacity: 0.5; margin-top: auto; }
 
-    /* ===== CARD DELETE BUTTON ===== */
+    /* ===== CARD HOVER BUTTONS ===== */
     .card-del {
       position: absolute; top: 6px; right: 6px;
       width: 20px; height: 20px; border: none;
       background: rgba(247,106,106,0.9); color: white;
       border-radius: 50%; font-size: 11px; cursor: pointer;
-      display: none; align-items: center; justify-content: center; z-index: 1;
+      display: none; align-items: center; justify-content: center; z-index: 2;
     }
     .folder-card:hover .card-del,
     .note-card:hover .card-del { display: flex; }
+
+    .card-pin {
+      position: absolute; top: 6px; left: 6px;
+      width: 20px; height: 20px; border: none;
+      background: transparent; color: var(--text-mut);
+      border-radius: 50%; cursor: pointer;
+      display: none; align-items: center; justify-content: center; z-index: 2;
+      transition: color var(--tr);
+    }
+    .folder-card:hover .card-pin,
+    .note-card:hover .card-pin { display: flex; }
+    .card-pin:hover { color: var(--accent); }
+    .card-pin.pinned { display: flex; color: var(--accent); }
 
     /* ===== EMPTY STATE ===== */
     .empty-state {
@@ -229,6 +247,7 @@
       font-size: 15px; transition: background var(--tr), color var(--tr);
     }
     .fmt-btn:hover { background: var(--bg-surf); color: var(--text-pri); }
+    .fmt-btn svg { display: block; }
     .fmt-done { color: var(--accent); font-weight: 700; font-size: 18px; width: 42px; }
     .fmt-done:hover { background: var(--accent-d); }
     .fmt-sep { width: 1px; height: 20px; background: var(--border); margin: 0 3px; }
@@ -270,14 +289,18 @@
       border-radius: var(--r-sm); padding: 8px 12px;
       color: var(--text-sec); font-size: 13px; cursor: pointer;
       text-align: left; transition: all var(--tr); width: 100%;
+      display: flex; align-items: center; gap: 8px;
     }
+    .sp-btn svg { flex-shrink: 0; }
     .sp-btn:hover { background: var(--accent-d); color: var(--text-pri); border-color: var(--accent); }
     .theme-row { display: flex; gap: 8px; }
     .theme-btn {
       flex: 1; padding: 8px; border: 1px solid var(--border);
       border-radius: var(--r-sm); background: transparent;
       color: var(--text-sec); cursor: pointer; font-size: 12px; transition: all var(--tr);
+      display: flex; align-items: center; justify-content: center; gap: 6px;
     }
+    .theme-btn svg { flex-shrink: 0; }
     .theme-btn.active { background: var(--accent-d); border-color: var(--accent); color: var(--accent); }
     .sp-links { gap: 0; }
     .sp-link {
@@ -285,6 +308,7 @@
       padding: 10px 0; color: var(--text-sec); text-decoration: none;
       font-size: 13px; border-bottom: 1px solid var(--border); transition: color var(--tr);
     }
+    .sp-link svg { flex-shrink: 0; }
     .sp-link:last-child { border-bottom: none; }
     .sp-link:hover { color: var(--accent); }
 
@@ -303,9 +327,10 @@
     }
     .dd-item:hover { background: var(--bg-surf); }
     .dd-item + .dd-item { border-top: 1px solid var(--border); }
+    .dd-item svg { color: var(--accent); flex-shrink: 0; }
 
     /* ===== COLOR PALETTE (in more-dd) ===== */
-    #palette-panel { padding: 14px 14px 12px; min-width: 210px; }
+    #palette-panel { padding: 14px 14px 12px; min-width: 210px; border-top: 1px solid var(--border); }
     .palette-label {
       font-size: 10px; font-weight: 700; color: var(--text-mut);
       text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px;
@@ -403,10 +428,16 @@
       <button class="fmt-btn" id="fmt-underline" title="Underline"><u>U</u></button>
       <button class="fmt-btn" id="fmt-strike"    title="Strikethrough"><s>S</s></button>
       <div class="fmt-sep"></div>
-      <button class="fmt-btn" id="fmt-todo"      title="Checkbox">☑</button>
-      <button class="fmt-btn" id="fmt-link"      title="Link">🔗</button>
+      <button class="fmt-btn" id="fmt-todo" title="Checkbox">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </button>
+      <button class="fmt-btn" id="fmt-link" title="Link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      </button>
       <div class="fmt-sep"></div>
-      <button class="fmt-btn fmt-done" id="fmt-done" title="Done">✓</button>
+      <button class="fmt-btn fmt-done" id="fmt-done" title="Done">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
     </div>
   </div>
 
@@ -423,27 +454,27 @@
       <div class="sp-section">
         <div class="sp-label">Name</div>
         <input id="name-input" class="sp-input" type="text" placeholder="Your name…" maxlength="30">
-        <button class="sp-btn" id="save-name-btn">💾 Save Name</button>
+        <button class="sp-btn" id="save-name-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Name</button>
       </div>
       <div class="sp-section">
         <div class="sp-label">Appearance</div>
         <div class="theme-row">
-          <button class="theme-btn" id="btn-dark">🌙 Dark</button>
-          <button class="theme-btn" id="btn-light">☀️ Light</button>
+          <button class="theme-btn" id="btn-light"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg> Light</button>
+          <button class="theme-btn" id="btn-dark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Dark</button>
         </div>
       </div>
       <div class="sp-section">
         <div class="sp-label">Backup</div>
-        <button class="sp-btn" id="export-btn">📤 Export Backup</button>
-        <button class="sp-btn" id="import-btn">📥 Import Backup</button>
+        <button class="sp-btn" id="export-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/><path d="M9 18H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg> Export Backup</button>
+        <button class="sp-btn" id="import-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 17 3 12 8 7"/><line x1="3" y1="12" x2="15" y2="12"/><path d="M15 6h4a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-4"/></svg> Import Backup</button>
       </div>
       <div class="sp-section sp-links">
         <div class="sp-label">Links</div>
         <a class="sp-link" href="https://instagram.com/stackd.vibe" target="_blank" rel="noopener noreferrer">
-          <span>📸</span> @stackd.vibe
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg> @stackd.vibe
         </a>
         <a class="sp-link" href="https://github.com/choiboi03/Memo" target="_blank" rel="noopener noreferrer">
-          <span>💻</span> GitHub Repo
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg> GitHub Repo
         </a>
       </div>
     </div>
@@ -452,12 +483,22 @@
 
   <!-- ===== NEW ITEM DROPDOWN ===== -->
   <div id="new-dd" class="dropdown hidden">
-    <button class="dd-item" id="dd-new-note">📝 New Note</button>
-    <button class="dd-item" id="dd-new-folder">📁 New Folder</button>
+    <button class="dd-item" id="dd-new-note">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      New Note
+    </button>
+    <button class="dd-item" id="dd-new-folder">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      New Folder
+    </button>
   </div>
 
-  <!-- ===== MORE MENU (Note view: color palette) ===== -->
+  <!-- ===== MORE MENU (Note view: color palette + actions) ===== -->
   <div id="more-dd" class="dropdown hidden">
+    <button class="dd-item" id="dd-download-md">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download as MD
+    </button>
     <div id="palette-panel">
       <div class="palette-label">Note Color</div>
       <div id="palette-swatches"></div>
@@ -484,6 +525,31 @@
 
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
   <script>
+  // ================================================================
+  // SVG ICONS — all header/settings icons: 18×18, viewBox 0 0 24 24
+  // ================================================================
+  const I = 'width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+  const SVG = {
+    // Header icons
+    settings:   `<svg ${I}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+    search:     `<svg ${I}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
+    plus:       `<svg ${I}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+    // Settings panel icons
+    save:       `<svg ${I}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
+    exportIcon: `<svg ${I}><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/><path d="M9 18H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg>`,
+    importIcon: `<svg ${I}><polyline points="8 17 3 12 8 7"/><line x1="3" y1="12" x2="15" y2="12"/><path d="M15 6h4a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-4"/></svg>`,
+    moon:       `<svg ${I}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
+    sun:        `<svg ${I}><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`,
+    instagram:  `<svg ${I}><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>`,
+    github:     `<svg ${I}><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>`,
+    download:   `<svg ${I}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
+    // Card icons
+    folder:     `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`,
+    starEmpty:  `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+    starFilled: `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+    xClose:     `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  };
+
   // ================================================================
   // CONSTANTS
   // ================================================================
@@ -513,14 +579,14 @@
   function loadData() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return { notes: [], folders: [], prefs: { theme: 'dark', userName: '' } };
+      if (!raw) return { notes: [], folders: [], prefs: { theme: 'light', userName: '' } };
       const d = JSON.parse(raw);
       return {
         notes:   Array.isArray(d.notes)   ? d.notes   : [],
         folders: Array.isArray(d.folders) ? d.folders : [],
-        prefs:   { theme: 'dark', userName: '', ...(d.prefs || {}) }
+        prefs:   { theme: 'light', userName: '', ...(d.prefs || {}) }
       };
-    } catch { return { notes: [], folders: [], prefs: { theme: 'dark', userName: '' } }; }
+    } catch { return { notes: [], folders: [], prefs: { theme: 'light', userName: '' } }; }
   }
 
   function saveData() {
@@ -534,7 +600,7 @@
   // ================================================================
   const State = {
     notes: [], folders: [],
-    prefs: { theme: 'dark', userName: '' },
+    prefs: { theme: 'light', userName: '' },
     viewStack: [{ type: 'home' }],
     isEditMode: false,
     searchQuery: '',
@@ -685,19 +751,21 @@
     State.searchQuery = '';
 
     if (view.type === 'home') {
+      hdr.classList.remove('header-hidden');
       toolbar.classList.add('hidden');
       const name = esc(State.prefs.userName || 'Notes');
       hdr.innerHTML = `
         <div class="h-side">
-          <button class="icon-btn" id="settings-btn" title="Settings">⚙</button>
+          <button class="icon-btn" id="settings-btn" title="Settings">${SVG.settings}</button>
         </div>
         <div class="h-center">${name}</div>
         <div class="h-side right">
-          <button class="icon-btn" id="search-btn" title="Search">🔍</button>
-          <button class="icon-btn" id="new-btn" title="New">＋</button>
+          <button class="icon-btn" id="search-btn" title="Search">${SVG.search}</button>
+          <button class="icon-btn" id="new-btn" title="New">${SVG.plus}</button>
         </div>`;
 
     } else if (view.type === 'folder') {
+      hdr.classList.remove('header-hidden');
       toolbar.classList.add('hidden');
       const bc = esc(getBreadcrumb(view.folderId));
       hdr.innerHTML = `
@@ -706,14 +774,23 @@
         </div>
         <div class="h-center" title="${bc}">${bc}</div>
         <div class="h-side right">
-          <button class="icon-btn" id="search-btn" title="Search">🔍</button>
-          <button class="icon-btn" id="new-btn" title="New">＋</button>
+          <button class="icon-btn" id="search-btn" title="Search">${SVG.search}</button>
+          <button class="icon-btn" id="new-btn" title="New">${SVG.plus}</button>
         </div>`;
 
     } else if (view.type === 'note') {
       const note = findNote(view.noteId);
       const pid  = note ? note.parentId : 'root';
       const bc   = esc(getBreadcrumb(pid === 'root' ? null : pid));
+
+      if (State.isEditMode) {
+        hdr.classList.remove('header-hidden');
+        toolbar.classList.remove('hidden');
+      } else {
+        hdr.classList.add('header-hidden');
+        toolbar.classList.add('hidden');
+      }
+
       hdr.innerHTML = `
         <div class="h-side">
           <button class="icon-btn" id="back-btn" title="Back">←</button>
@@ -722,8 +799,6 @@
         <div class="h-side right">
           <button class="icon-btn" id="more-btn" title="More">•••</button>
         </div>`;
-      if (State.isEditMode) toolbar.classList.remove('hidden');
-      else                  toolbar.classList.add('hidden');
     }
     bindHeaderEvents();
   }
@@ -745,14 +820,23 @@
     const { folders, notes } = getChildren(parentId);
     const q = State.searchQuery.toLowerCase();
 
-    const filteredFolders = q ? [] : folders;
-    const filteredNotes   = q
+    const filteredFolders = q ? [] : [...folders].sort((a, b) => {
+      if (b.pinned && !a.pinned) return 1;
+      if (a.pinned && !b.pinned) return -1;
+      return 0;
+    });
+
+    const filteredNotes = q
       ? notes.filter(n => {
           const t = extractTitle(n.content).toLowerCase();
           const p = extractPreview(n.content).toLowerCase();
           return t.includes(q) || p.includes(q);
         })
-      : [...notes].sort((a, b) => b.updatedAt - a.updatedAt);
+      : [...notes].sort((a, b) => {
+          if (b.pinned && !a.pinned) return 1;
+          if (a.pinned && !b.pinned) return -1;
+          return b.updatedAt - a.updatedAt;
+        });
 
     if (filteredFolders.length === 0 && filteredNotes.length === 0) {
       container.innerHTML = `
@@ -770,12 +854,15 @@
     if (filteredFolders.length > 0) {
       html += '<div class="section-label">Folders</div><div class="items-grid">';
       filteredFolders.forEach(f => {
-        const cnt = countItems(f.id);
+        const cnt     = countItems(f.id);
+        const pinned  = f.pinned ? ' pinned' : '';
+        const starSvg = f.pinned ? SVG.starFilled : SVG.starEmpty;
         html += `<div class="folder-card" data-folder-id="${f.id}">
-          <div class="folder-icon">📁</div>
+          <button class="card-pin${pinned}" data-pin-folder="${f.id}" title="Pin">${starSvg}</button>
+          <div class="folder-icon">${SVG.folder}</div>
           <div class="folder-name">${esc(f.name)}</div>
           <div class="folder-count">${cnt} item${cnt !== 1 ? 's' : ''}</div>
-          <button class="card-del" data-del-folder="${f.id}" title="Delete">✕</button>
+          <button class="card-del" data-del-folder="${f.id}" title="Delete">${SVG.xClose}</button>
         </div>`;
       });
       html += '</div>';
@@ -788,11 +875,14 @@
         const fullText = extractPreview(n.content);
         const preview  = fullText.slice(title.length).trim().slice(0, 150);
         const bgStyle  = n.bgColor ? ` style="background:${esc(n.bgColor)}"` : '';
+        const pinned   = n.pinned ? ' pinned' : '';
+        const starSvg  = n.pinned ? SVG.starFilled : SVG.starEmpty;
         html += `<div class="note-card" data-note-id="${n.id}"${bgStyle}>
+          <button class="card-pin${pinned}" data-pin-note="${n.id}" title="Pin">${starSvg}</button>
           <div class="note-card-title">${esc(title)}</div>
           ${preview ? `<div class="note-card-preview">${esc(preview)}</div>` : ''}
           <div class="note-card-date">${formatDate(n.updatedAt)}</div>
-          <button class="card-del" data-del-note="${n.id}" title="Delete">✕</button>
+          <button class="card-del" data-del-note="${n.id}" title="Delete">${SVG.xClose}</button>
         </div>`;
       });
       html += '</div>';
@@ -850,7 +940,7 @@
   function createNote(parentId) {
     const note = {
       id: genId('n'), parentId: parentId || 'root',
-      content: '<div><br></div>', bgColor: null,
+      content: '<div><br></div>', bgColor: null, pinned: false,
       createdAt: Date.now(), updatedAt: Date.now()
     };
     State.notes.unshift(note);
@@ -867,11 +957,26 @@
     else renderContent();
   }
 
+  function togglePinNote(id) {
+    const note = findNote(id);
+    if (!note) return;
+    note.pinned = !note.pinned;
+    saveData();
+    renderContent();
+  }
+
+  function togglePinFolder(id) {
+    const folder = findFolder(id);
+    if (!folder) return;
+    folder.pinned = !folder.pinned;
+    saveData();
+    renderContent();
+  }
+
   function setNoteColor(noteId, color) {
     const note = findNote(noteId);
     if (!note) return;
     note.bgColor = color;
-    note.updatedAt = Date.now();
     saveData();
     const content = document.getElementById('content');
     const wrap    = document.getElementById('note-wrap');
@@ -886,7 +991,7 @@
   function createFolder(name, parentId) {
     State.folders.push({
       id: genId('f'), parentId: parentId || 'root',
-      name: name.trim(), createdAt: Date.now()
+      name: name.trim(), pinned: false, createdAt: Date.now()
     });
     saveData();
     renderContent();
@@ -917,9 +1022,11 @@
     State.isEditMode = true;
     const editor  = document.getElementById('editor');
     const toolbar = document.getElementById('fmt-toolbar');
+    const hdr     = document.getElementById('header');
     if (!editor) return;
     editor.contentEditable = 'true';
-    toolbar.classList.remove('hidden');
+    if (hdr)     hdr.classList.remove('header-hidden');
+    if (toolbar) toolbar.classList.remove('hidden');
     editor.focus();
     const range = document.createRange();
     range.selectNodeContents(editor);
@@ -934,10 +1041,12 @@
     State.isEditMode = false;
     const editor  = document.getElementById('editor');
     const toolbar = document.getElementById('fmt-toolbar');
+    const hdr     = document.getElementById('header');
     if (!editor) return;
     editor.contentEditable = 'false';
     editor.blur();
-    toolbar.classList.add('hidden');
+    if (toolbar) toolbar.classList.add('hidden');
+    if (hdr)     hdr.classList.add('header-hidden');
     const note = findNote(State.currentView.noteId);
     if (note) {
       note.content = DOMPurify.sanitize(editor.innerHTML);
@@ -1056,6 +1165,55 @@
     });
     const ci = container.querySelector('input[type="color"]');
     if (ci) ci.addEventListener('input', e => setNoteColor(noteId, e.target.value));
+  }
+
+  // ================================================================
+  // MARKDOWN DOWNLOAD
+  // ================================================================
+  function htmlToMarkdown(html) {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+
+    function nodeToMd(node) {
+      if (node.nodeType === Node.TEXT_NODE) return node.textContent;
+      if (node.nodeType !== Node.ELEMENT_NODE) return '';
+      const tag = node.tagName.toLowerCase();
+      const inner = Array.from(node.childNodes).map(nodeToMd).join('');
+      switch (tag) {
+        case 'b': case 'strong': return `**${inner}**`;
+        case 'i': case 'em':    return `*${inner}*`;
+        case 'u':                return `<u>${inner}</u>`;
+        case 's': case 'strike':case 'del': return `~~${inner}~~`;
+        case 'a':                return `[${inner}](${node.getAttribute('href') || ''})`;
+        case 'code':             return `\`${inner}\``;
+        case 'br':               return '\n';
+        case 'input':
+          if (node.type === 'checkbox') return node.checked ? '- [x] ' : '- [ ] ';
+          return '';
+        case 'div': case 'p':   return inner + '\n';
+        default:                 return inner;
+      }
+    }
+
+    return Array.from(div.childNodes).map(nodeToMd).join('').trim();
+  }
+
+  function downloadNoteAsMd() {
+    const view = State.currentView;
+    if (view.type !== 'note') return;
+    const note = findNote(view.noteId);
+    if (!note) return;
+    const title = extractTitle(note.content);
+    const md    = htmlToMarkdown(note.content || '');
+    const blob  = new Blob([md], { type: 'text/markdown' });
+    const url   = URL.createObjectURL(blob);
+    const a     = document.createElement('a');
+    a.href = url;
+    a.download = `${title.replace(/[/\\?%*:|"<>]/g, '-')}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Downloaded as MD');
+    closeDropdowns();
   }
 
   // ================================================================
@@ -1219,6 +1377,7 @@
     q('dd-new-folder').addEventListener('click', () => {
       closeDropdowns(); openFolderModal();
     });
+    q('dd-download-md').addEventListener('click', downloadNoteAsMd);
 
     // Folder modal
     q('folder-cancel').addEventListener('click', closeFolderModal);
@@ -1252,6 +1411,14 @@
     q('content').addEventListener('click', e => {
       if (State.currentView.type === 'note') return;
 
+      // Pin buttons
+      const pinFolder = e.target.closest('[data-pin-folder]');
+      if (pinFolder) { e.stopPropagation(); togglePinFolder(pinFolder.dataset.pinFolder); return; }
+
+      const pinNote = e.target.closest('[data-pin-note]');
+      if (pinNote) { e.stopPropagation(); togglePinNote(pinNote.dataset.pinNote); return; }
+
+      // Delete buttons
       const delFolder = e.target.closest('[data-del-folder]');
       if (delFolder) { e.stopPropagation(); deleteFolder(delFolder.dataset.delFolder); return; }
 
