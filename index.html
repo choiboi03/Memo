@@ -553,7 +553,8 @@
   // ================================================================
   // CONSTANTS
   // ================================================================
-  const STORAGE_KEY = 'memo_data';
+  const _sid = new URLSearchParams(window.location.search).get('stackd_id');
+const STORAGE_KEY = _sid ? `memo_data_${_sid}` : 'memo_data';
 
   const DARK_PALETTE = [
     { label: 'Default',       value: null },
