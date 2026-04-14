@@ -741,6 +741,7 @@ function loadInstanceState() {
     State.viewStack.push(view);
     State.isEditMode = false;
     State.searchQuery = '';
+    saveInstanceState();
     renderApp();
   }
 
@@ -750,6 +751,7 @@ function loadInstanceState() {
     State.viewStack.pop();
     State.isEditMode = false;
     State.searchQuery = '';
+    saveInstanceState();
     renderApp();
   }
 
