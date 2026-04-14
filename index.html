@@ -553,9 +553,10 @@
   // ================================================================
   // CONSTANTS
   // ================================================================
-  const _sid = new URLSearchParams(window.location.search).get('stackd_id');
-const STORAGE_KEY = _sid ? `memo_data_${_sid}` : 'memo_data';
-
+  const STORAGE_KEY = 'memo_data';
+const _sid = new URLSearchParams(window.location.search).get('stackd_id');
+const INSTANCE_KEY = _sid ? `memo_instance_${_sid}` : null;
+  
   const DARK_PALETTE = [
     { label: 'Default',       value: null },
     { label: 'Purple Night',  value: '#2d1b3d' },
@@ -715,6 +716,25 @@ const STORAGE_KEY = _sid ? `memo_data_${_sid}` : 'memo_data';
       }
     }
   }
+  function saveInstanceState() {
+  if (!INSTANCE_KEY) return;
+  localStorage.setItem(INSTANCE_KEY, JSON.stringify(State.viewStack));
+}
+
+function loadInstanceState() {
+  if (!INSTANCE_KEY) return;
+  try {
+    const raw = localStorage.getItem(INSTANCE_KEY);
+    if (!raw) return;
+    const stack = JSON.parse(raw);
+    const valid = stack.every(v => {
+      if (v.type === 'note') return !!findNote(v.noteId);
+      if (v.type === 'folder') return !!findFolder(v.folderId);
+      return true;
+    });
+    if (valid && stack.length > 0) State.viewStack = stack;
+  } catch {}
+}
 
   function pushView(view) {
     flushEditorSave();
@@ -1455,6 +1475,7 @@ const STORAGE_KEY = _sid ? `memo_data_${_sid}` : 'memo_data';
     State.folders   = data.folders;
     State.prefs     = data.prefs;
     document.documentElement.dataset.theme = State.prefs.theme;
+    loadInstanceState();
     bindEvents();
     renderApp();
   }
