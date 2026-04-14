@@ -394,6 +394,24 @@
     .btn-ghost { background: transparent; color: var(--text-sec); border: 1px solid var(--border); }
     .btn-ghost:hover { background: var(--bg-surf); color: var(--text-pri); }
 
+    /* ===== RENAME BUTTON ===== */
+    .card-rename {
+      position: absolute; bottom: 6px; right: 6px;
+      width: 20px; height: 20px; border: none;
+      background: rgba(124,106,247,0.15); color: var(--accent);
+      border-radius: 50%; cursor: pointer;
+      display: none; align-items: center; justify-content: center; z-index: 2;
+      transition: background var(--tr);
+    }
+    .folder-card:hover .card-rename { display: flex; }
+    .card-rename:hover { background: var(--accent-d); }
+
+    /* ===== EDITOR LISTS ===== */
+    #editor ul, #editor ol { padding-left: 22px; margin: 2px 0; }
+    #editor li { margin: 1px 0; }
+    #editor ul { list-style-type: disc; }
+    #editor ol { list-style-type: decimal; }
+
     /* ===== TOAST ===== */
     #toast {
       position: fixed; bottom: 18px; left: 50%;
@@ -428,6 +446,12 @@
       <button class="fmt-btn" id="fmt-underline" title="Underline"><u>U</u></button>
       <button class="fmt-btn" id="fmt-strike"    title="Strikethrough"><s>S</s></button>
       <div class="fmt-sep"></div>
+      <button class="fmt-btn" id="fmt-bullet" title="Bullet List">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg>
+      </button>
+      <button class="fmt-btn" id="fmt-ordered" title="Numbered List">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4" stroke-linecap="round"/><path d="M4 10h2" stroke-linecap="round"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" stroke-linecap="round"/></svg>
+      </button>
       <button class="fmt-btn" id="fmt-todo" title="Checkbox">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
       </button>
@@ -548,6 +572,7 @@
     starEmpty:  `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
     starFilled: `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
     xClose:     `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+    pencil:     `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
   };
 
   // ================================================================
@@ -885,6 +910,7 @@ function loadInstanceState() {
           <div class="folder-icon">${SVG.folder}</div>
           <div class="folder-name">${esc(f.name)}</div>
           <div class="folder-count">${cnt} item${cnt !== 1 ? 's' : ''}</div>
+          <button class="card-rename" data-rename-folder="${f.id}" title="Rename">${SVG.pencil}</button>
           <button class="card-del" data-del-folder="${f.id}" title="Delete">${SVG.xClose}</button>
         </div>`;
       });
@@ -937,6 +963,61 @@ function loadInstanceState() {
 
     editor.addEventListener('click', () => {
       if (!State.isEditMode) enterEditMode();
+    });
+
+    editor.addEventListener('keydown', e => {
+      if (!State.isEditMode) return;
+
+      // Keyboard shortcuts
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'b') { e.preventDefault(); applyFmt('bold'); return; }
+        if (e.key === 'i') { e.preventDefault(); applyFmt('italic'); return; }
+        if (e.key === 'u') { e.preventDefault(); applyFmt('underline'); return; }
+        if (e.key === 'k') { e.preventDefault(); insertLink(); return; }
+      }
+
+      // Checklist Enter continuation
+      if (e.key === 'Enter') {
+        const sel = window.getSelection();
+        if (!sel || !sel.rangeCount) return;
+        let node = sel.getRangeAt(0).startContainer;
+        let block = node.nodeType === Node.TEXT_NODE ? node.parentNode : node;
+        while (block && block !== editor) {
+          if (['DIV', 'P'].includes(block.tagName)) break;
+          block = block.parentNode;
+        }
+        if (!block || block === editor) return;
+        const cb = block.querySelector('input[type="checkbox"]');
+        if (!cb) return;
+        e.preventDefault();
+        const textContent = block.textContent.replace(/\u00a0/g, '').trim();
+        if (!textContent) {
+          // Empty checklist line → exit to plain line
+          const emptyDiv = document.createElement('div');
+          emptyDiv.innerHTML = '<br>';
+          block.replaceWith(emptyDiv);
+          const range = document.createRange();
+          range.setStart(emptyDiv, 0);
+          range.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(range);
+        } else {
+          // Continue checklist
+          const newDiv = document.createElement('div');
+          const newCb  = document.createElement('input');
+          newCb.type   = 'checkbox';
+          const sp     = document.createTextNode('\u00a0');
+          newDiv.appendChild(newCb);
+          newDiv.appendChild(sp);
+          block.after(newDiv);
+          const range = document.createRange();
+          range.setStartAfter(sp);
+          range.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+        editor.dispatchEvent(new Event('input'));
+      }
     });
 
     editor.addEventListener('input', () => {
@@ -1304,11 +1385,33 @@ function loadInstanceState() {
   // ================================================================
   // FOLDER MODAL
   // ================================================================
+  let folderModalMode = 'create'; // 'create' | 'rename'
+  let folderRenameId  = null;
+
   function openFolderModal() {
+    folderModalMode = 'create';
+    folderRenameId  = null;
+    const modal = document.getElementById('folder-modal');
+    modal.querySelector('h3').textContent = 'New Folder';
+    modal.querySelector('#folder-confirm').textContent = 'Create';
     const inp = document.getElementById('folder-name-input');
     if (inp) inp.value = '';
-    document.getElementById('folder-modal').classList.remove('hidden');
+    modal.classList.remove('hidden');
     setTimeout(() => { if (inp) inp.focus(); }, 50);
+  }
+
+  function openFolderRenameModal(folderId) {
+    const folder = findFolder(folderId);
+    if (!folder) return;
+    folderModalMode = 'rename';
+    folderRenameId  = folderId;
+    const modal = document.getElementById('folder-modal');
+    modal.querySelector('h3').textContent = 'Rename Folder';
+    modal.querySelector('#folder-confirm').textContent = 'Rename';
+    const inp = document.getElementById('folder-name-input');
+    if (inp) { inp.value = folder.name; }
+    modal.classList.remove('hidden');
+    setTimeout(() => { if (inp) { inp.focus(); inp.select(); } }, 50);
   }
 
   function closeFolderModal() { document.getElementById('folder-modal').classList.add('hidden'); }
@@ -1317,9 +1420,16 @@ function loadInstanceState() {
     const inp  = document.getElementById('folder-name-input');
     const name = inp ? inp.value.trim() : '';
     if (!name) { showToast('Enter a folder name', 'error'); return; }
-    createFolder(name, State.currentParentId);
-    closeFolderModal();
-    showToast('Folder created');
+    if (folderModalMode === 'rename' && folderRenameId) {
+      const folder = findFolder(folderRenameId);
+      if (folder) { folder.name = name; saveData(); renderContent(); }
+      closeFolderModal();
+      showToast('Folder renamed');
+    } else {
+      createFolder(name, State.currentParentId);
+      closeFolderModal();
+      showToast('Folder created');
+    }
   }
 
   // ================================================================
@@ -1426,6 +1536,8 @@ function loadInstanceState() {
     q('fmt-italic').addEventListener('click',    () => applyFmt('italic'));
     q('fmt-underline').addEventListener('click', () => applyFmt('underline'));
     q('fmt-strike').addEventListener('click',    () => applyFmt('strikeThrough'));
+    q('fmt-bullet').addEventListener('click',    () => applyFmt('insertUnorderedList'));
+    q('fmt-ordered').addEventListener('click',   () => applyFmt('insertOrderedList'));
     q('fmt-todo').addEventListener('click',      insertCheckbox);
     q('fmt-link').addEventListener('click',      insertLink);
     q('fmt-done').addEventListener('click',      enterViewMode);
@@ -1440,6 +1552,10 @@ function loadInstanceState() {
 
       const pinNote = e.target.closest('[data-pin-note]');
       if (pinNote) { e.stopPropagation(); togglePinNote(pinNote.dataset.pinNote); return; }
+
+      // Rename folder button
+      const renameFolder = e.target.closest('[data-rename-folder]');
+      if (renameFolder) { e.stopPropagation(); openFolderRenameModal(renameFolder.dataset.renameFolder); return; }
 
       // Delete buttons
       const delFolder = e.target.closest('[data-del-folder]');
