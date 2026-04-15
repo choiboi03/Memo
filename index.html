@@ -9,47 +9,47 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
       height: 100%;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
 
     /* ===== THEME VARIABLES ===== */
     :root {
-      --bg-base:    #0f1117;
-      --bg-card:    #1c1e2a;
-      --bg-card-h:  #22253a;
-      --bg-panel:   rgba(18,20,30,0.97);
+      --bg-base:    #1a1a1a;
+      --bg-card:    #242424;
+      --bg-card-h:  #2e2e2e;
+      --bg-panel:   rgba(26,26,26,0.97);
       --bg-surf:    rgba(255,255,255,0.06);
-      --bg-inp:     rgba(255,255,255,0.08);
-      --text-pri:   #e8eaf0;
-      --text-sec:   #8b8fa8;
-      --text-mut:   #505470;
-      --accent:     #7c6af7;
-      --accent-d:   rgba(124,106,247,0.15);
-      --accent-h:   #9585f8;
-      --danger:     #f76a6a;
-      --border:     rgba(255,255,255,0.08);
-      --border-f:   rgba(124,106,247,0.5);
-      --shadow:     0 8px 32px rgba(0,0,0,0.5);
-      --shadow-s:   0 2px 10px rgba(0,0,0,0.3);
-      --note-fc:    #ffffff;
-      --r-sm: 8px; --r-md: 12px; --r-lg: 18px;
-      --tr: 0.18s ease;
+      --bg-inp:     rgba(255,255,255,0.07);
+      --text-pri:   #f0f0f0;
+      --text-sec:   #a0a0a0;
+      --text-mut:   #5a5a5a;
+      --accent:     #339AF0;
+      --accent-d:   rgba(51,154,240,0.15);
+      --accent-h:   #228be6;
+      --danger:     #FF6B6B;
+      --border:     #3a3a3a;
+      --border-f:   #339AF0;
+      --shadow:     0 4px 12px rgba(0,0,0,0.3);
+      --shadow-s:   0 1px 3px rgba(0,0,0,0.2);
+      --note-fc:    #f0f0f0;
+      --r-sm: 4px; --r-md: 8px; --r-lg: 16px;
+      --tr: 0.15s ease;
     }
     [data-theme="light"] {
-      --bg-base:    #f0f2f8;
+      --bg-base:    #f7f7f8;
       --bg-card:    #ffffff;
-      --bg-card-h:  #f5f7ff;
+      --bg-card-h:  #f0f0f0;
       --bg-panel:   rgba(255,255,255,0.97);
       --bg-surf:    rgba(0,0,0,0.04);
-      --bg-inp:     rgba(0,0,0,0.06);
-      --text-pri:   #1a1c2e;
-      --text-sec:   #555870;
-      --text-mut:   #aab0c8;
-      --border:     rgba(0,0,0,0.08);
-      --border-f:   rgba(124,106,247,0.4);
-      --shadow:     0 8px 32px rgba(0,0,0,0.12);
-      --shadow-s:   0 2px 10px rgba(0,0,0,0.08);
+      --bg-inp:     rgba(0,0,0,0.05);
+      --text-pri:   #1a1a1a;
+      --text-sec:   #6b6b6b;
+      --text-mut:   #b0b0b0;
+      --border:     #e0e0e0;
+      --border-f:   #339AF0;
+      --shadow:     0 4px 12px rgba(0,0,0,0.08);
+      --shadow-s:   0 1px 3px rgba(0,0,0,0.06);
       --note-fc:    #1a1a1a;
     }
 
@@ -67,7 +67,7 @@
       background: var(--bg-panel);
       backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
       flex-shrink: 0; z-index: 10;
-      transition: opacity 0.18s, transform 0.18s;
+      transition: opacity 0.15s ease, transform 0.15s ease;
     }
     #header.header-hidden {
       display: none;
@@ -88,7 +88,7 @@
     }
     #search-bar.hidden { display: none; }
     #search-input {
-      flex: 1; background: var(--bg-inp); border: 1px solid var(--border);
+      flex: 1; background: var(--bg-inp); border: 1.5px solid var(--border);
       border-radius: var(--r-sm); padding: 7px 12px;
       color: var(--text-pri); font-size: 14px; outline: none;
       transition: border-color var(--tr);
@@ -100,10 +100,10 @@
     .icon-btn {
       display: flex; align-items: center; justify-content: center;
       width: 34px; height: 34px; border: none; background: transparent;
-      color: var(--accent); cursor: pointer; border-radius: var(--r-sm);
-      font-size: 17px; transition: background var(--tr); flex-shrink: 0; line-height: 1;
+      color: var(--text-sec); cursor: pointer; border-radius: 50%;
+      font-size: 17px; transition: background var(--tr), color var(--tr); flex-shrink: 0; line-height: 1;
     }
-    .icon-btn:hover { background: var(--accent-d); }
+    .icon-btn:hover { background: var(--bg-surf); color: var(--text-pri); }
     .icon-btn svg { display: block; }
 
     /* ===== CONTENT AREA ===== */
@@ -166,7 +166,7 @@
     .card-del {
       position: absolute; top: 6px; right: 6px;
       width: 20px; height: 20px; border: none;
-      background: rgba(247,106,106,0.9); color: white;
+      background: rgba(255,107,107,0.9); color: white;
       border-radius: 50%; font-size: 11px; cursor: pointer;
       display: none; align-items: center; justify-content: center; z-index: 2;
     }
@@ -242,13 +242,13 @@
     #fmt-toolbar.hidden { display: none; }
     .fmt-btn {
       display: flex; align-items: center; justify-content: center;
-      width: 38px; height: 34px; border: none; background: transparent;
-      color: var(--text-sec); cursor: pointer; border-radius: var(--r-sm);
-      font-size: 15px; transition: background var(--tr), color var(--tr);
+      width: 36px; height: 32px; border: none; background: transparent;
+      color: var(--text-sec); cursor: pointer; border-radius: 50%;
+      font-size: 14px; transition: background var(--tr), color var(--tr);
     }
     .fmt-btn:hover { background: var(--bg-surf); color: var(--text-pri); }
     .fmt-btn svg { display: block; }
-    .fmt-done { color: var(--accent); font-weight: 700; font-size: 18px; width: 42px; }
+    .fmt-done { color: var(--accent); font-weight: 700; font-size: 17px; width: 36px; }
     .fmt-done:hover { background: var(--accent-d); }
     .fmt-sep { width: 1px; height: 20px; background: var(--border); margin: 0 3px; }
 
@@ -278,25 +278,25 @@
       text-transform: uppercase; letter-spacing: 0.1em;
     }
     .sp-input {
-      background: var(--bg-inp); border: 1px solid var(--border);
+      background: var(--bg-inp); border: 1.5px solid var(--border);
       border-radius: var(--r-sm); padding: 8px 10px;
       color: var(--text-pri); font-size: 14px; outline: none; width: 100%;
       transition: border-color var(--tr);
     }
     .sp-input:focus { border-color: var(--border-f); }
     .sp-btn {
-      background: var(--bg-surf); border: 1px solid var(--border);
-      border-radius: var(--r-sm); padding: 8px 12px;
+      background: var(--bg-card); border: 1.5px solid var(--border);
+      border-radius: var(--r-sm); padding: 9px 12px;
       color: var(--text-sec); font-size: 13px; cursor: pointer;
       text-align: left; transition: all var(--tr); width: 100%;
       display: flex; align-items: center; gap: 8px;
     }
-    .sp-btn svg { flex-shrink: 0; }
-    .sp-btn:hover { background: var(--accent-d); color: var(--text-pri); border-color: var(--accent); }
+    .sp-btn svg { flex-shrink: 0; color: var(--accent); }
+    .sp-btn:hover { background: var(--bg-card-h); color: var(--text-pri); border-color: var(--border-f); }
     .theme-row { display: flex; gap: 8px; }
     .theme-btn {
-      flex: 1; padding: 8px; border: 1px solid var(--border);
-      border-radius: var(--r-sm); background: transparent;
+      flex: 1; padding: 8px; border: 1.5px solid var(--border);
+      border-radius: var(--r-sm); background: var(--bg-card);
       color: var(--text-sec); cursor: pointer; font-size: 12px; transition: all var(--tr);
       display: flex; align-items: center; justify-content: center; gap: 6px;
     }
@@ -378,7 +378,7 @@
     }
     .modal-box h3 { font-size: 15px; font-weight: 700; }
     .modal-input {
-      background: var(--bg-inp); border: 1px solid var(--border);
+      background: var(--bg-inp); border: 1.5px solid var(--border);
       border-radius: var(--r-sm); padding: 9px 11px; color: var(--text-pri);
       font-size: 14px; width: 100%; outline: none; transition: border-color var(--tr);
     }
@@ -389,16 +389,16 @@
       padding: 7px 16px; border-radius: var(--r-sm); border: none;
       font-size: 13px; font-weight: 600; cursor: pointer; transition: all var(--tr);
     }
-    .btn-primary { background: var(--accent); color: white; }
-    .btn-primary:hover { background: var(--accent-h); }
-    .btn-ghost { background: transparent; color: var(--text-sec); border: 1px solid var(--border); }
-    .btn-ghost:hover { background: var(--bg-surf); color: var(--text-pri); }
+    .btn-primary { background: var(--accent); color: white; border: 1.5px solid var(--accent); }
+    .btn-primary:hover { background: var(--accent-h); border-color: var(--accent-h); }
+    .btn-ghost { background: var(--bg-card); color: var(--text-sec); border: 1.5px solid var(--border); }
+    .btn-ghost:hover { background: var(--bg-card-h); color: var(--text-pri); }
 
     /* ===== RENAME BUTTON ===== */
     .card-rename {
       position: absolute; bottom: 6px; right: 6px;
       width: 20px; height: 20px; border: none;
-      background: rgba(124,106,247,0.15); color: var(--accent);
+      background: var(--accent-d); color: var(--accent);
       border-radius: 50%; cursor: pointer;
       display: none; align-items: center; justify-content: center; z-index: 2;
       transition: background var(--tr);
